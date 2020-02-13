@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerCharacter : Character
 {
 	public MovementController controller;
+	public Animator animator;
 
 	public static PlayerCharacter inst;
 
@@ -15,12 +16,15 @@ public class PlayerCharacter : Character
 
 	private void Update()
 	{
-		if (Input.GetKeyDown(KeyCode.DownArrow))
-			Damage(20, null);
-		else if (Input.GetKeyDown(KeyCode.UpArrow))
-			Damage(-20, null);
-		else if (Input.GetKeyDown(KeyCode.Space))
-			Damage(150, null);
+		if (Input.GetMouseButtonDown(1))
+		{
+			animator.SetTrigger("Attack");
+		}
+	}
+
+	public void Attack()
+	{
+		Debug.Log("Attacking");
 	}
 
 	protected override void Death()
@@ -34,6 +38,7 @@ public class PlayerCharacter : Character
 		rb.useGravity = true;
 		rb.constraints = RigidbodyConstraints.None;
 		rb.velocity = controller._body.velocity;
+		rb.isKinematic = false;
 
 		// Stop and disable movement controller to prevent movement after death
 		controller.StopMovement();

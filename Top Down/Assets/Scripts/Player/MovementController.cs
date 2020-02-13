@@ -23,7 +23,7 @@ public class MovementController : MonoBehaviour
 	private NavMeshAgent body;
 	private Camera cam;
 	private Transform pointer;
-	private Coroutine pCoroutine;
+	private Coroutine cPointer;
 	private bool pointerActive;
 
 	private void Start()
@@ -54,7 +54,7 @@ public class MovementController : MonoBehaviour
 		// Find destination
 		if (Input.GetMouseButtonDown(0))
 		{
-			pCoroutine = StartCoroutine(ControlPointer());
+			cPointer = StartCoroutine(ControlPointer());
 		}
 
 		// Switch between walking and running speeds
@@ -76,6 +76,8 @@ public class MovementController : MonoBehaviour
 		pointerActive = false;
 		pointer.gameObject.SetActive(false);
 		pointer.position = Vector3.zero;
+
+		StopCoroutine(cPointer);
 	}
 
 	private IEnumerator ControlPointer()
@@ -95,7 +97,7 @@ public class MovementController : MonoBehaviour
 			yield break;
 		}
 
-		// Continuosly update pointer position until left mouse button is released, same return conditions, excluding distance check
+		// Continuosly update pointer position until left mouse button is released
 		do
 		{
 			if (Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out hit, rayMaxDistance, rayMask) && hit.normal.y > pointerNormalThreshold)
