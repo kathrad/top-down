@@ -28,9 +28,9 @@ public class Character : MonoBehaviour, IDamageable
 			return;
 
 		if (amount > 0)
-			Debug.Log(name + " takes " + -amount + " damage");
+			Debug.Log(name + " takes " + amount + " damage");
 		else
-			Debug.Log(name + " is healed by " + amount);
+			Debug.Log(name + " is healed by " + -amount);
 
 		// TODO: damage resistances
 		// pass the difference of previous and current hit points

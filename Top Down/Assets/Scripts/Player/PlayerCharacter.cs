@@ -27,9 +27,6 @@ public class PlayerCharacter : Character
 	{
 		base.Death();
 
-		// Stop and disable movement controller to prevent movement after death
-		controller.StopMovement();
-		controller.enabled = false;
 
 		// TODO: death animation
 
@@ -37,6 +34,10 @@ public class PlayerCharacter : Character
 		rb.useGravity = true;
 		rb.constraints = RigidbodyConstraints.None;
 		rb.velocity = controller._body.velocity;
+
+		// Stop and disable movement controller to prevent movement after death
+		controller.StopMovement();
 		controller._body.enabled = false;
+		controller.enabled = false;
 	}
 }
