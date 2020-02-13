@@ -24,9 +24,9 @@ public class HealthBar : MonoBehaviour
 		if (targetPlayer)
 		{
 			target = PlayerCharacter.inst;
-			target.OnHealthChanged += Target_OnHealthChanged;
+			target.OnHPChanged += Target_OnHealthChanged;
 		}
-		slider.value = (float)target.Health.Value / target.Health.MaxValue;
+		slider.value = (float)target.HP.Value / target.HP.MaxValue;
 		fill.color = normalColor;
 	}
 
@@ -34,13 +34,13 @@ public class HealthBar : MonoBehaviour
 	{
 		if (target != null && !targetPlayer)
 		{
-			target.OnHealthChanged += Target_OnHealthChanged;
+			target.OnHPChanged += Target_OnHealthChanged;
 		}
 	}
 
 	private void OnDisable()
 	{
-		target.OnHealthChanged -= Target_OnHealthChanged;
+		target.OnHPChanged -= Target_OnHealthChanged;
 	}
 
 	private void Update()
