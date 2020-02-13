@@ -41,7 +41,7 @@ public class MovementController : MonoBehaviour
 		// TODO: proper input system
 		// Reset path
 		if (Input.GetKeyDown(KeyCode.S))
-			_body.ResetPath();
+			StopMovement();
 
 		// Hide pointer at destination
 		if (pointerActive && !body.hasPath)
@@ -66,6 +66,16 @@ public class MovementController : MonoBehaviour
 		{
 			body.speed = walkSpeed;
 		}
+	}
+
+	public void StopMovement()
+	{
+		// Reset path
+		_body.ResetPath();
+
+		pointerActive = false;
+		pointer.gameObject.SetActive(false);
+		pointer.position = Vector3.zero;
 	}
 
 	private IEnumerator ControlPointer()
