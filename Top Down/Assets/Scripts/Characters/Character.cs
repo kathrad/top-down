@@ -49,8 +49,10 @@ public class Character : MonoBehaviour, IDamageable
 		OnDeath?.Invoke(this, System.EventArgs.Empty);
 	}	
 
-	private void Start()
+	protected virtual void Start()
 	{
 		HP = new Stat(_health.x, _health.y);
 	}
+
+	public enum State { idle, moving, attac}
 }
