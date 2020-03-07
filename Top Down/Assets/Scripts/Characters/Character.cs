@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Character : MonoBehaviour, IDamageable
+public class Character : Interactable, IDamageable
 {
-	public Vector2Int _health;
+	public Vector2Int _hp	;
 
 	// Hit points or health
 	public Stat HP { get; private set; }
@@ -23,7 +23,7 @@ public class Character : MonoBehaviour, IDamageable
 	// Derived from IDamageable. Negative value = damage, positive = healing
 	public virtual void Damage(int amount, DamageType damageType)
 	{
-		// Don't modify health after character death
+		// Don't modify hp after character death
 		if (Dead)
 			return;
 
@@ -37,7 +37,7 @@ public class Character : MonoBehaviour, IDamageable
 		int deltaHealth = HP.ModifyValue(-amount);
 		OnHPChanged?.Invoke(this, new StatEventArgs { value = HP.Value, delta = deltaHealth, maxValue = HP.MaxValue });
 
-		// If health reached zero - dead
+		// If hp reached zero - dead
 		if (HP.Value == 0)
 			Death();
 	}
@@ -49,9 +49,10 @@ public class Character : MonoBehaviour, IDamageable
 		OnDeath?.Invoke(this, System.EventArgs.Empty);
 	}	
 
-	protected virtual void Start()
+	protected override void Start()
 	{
-		HP = new Stat(_health.x, _health.y);
+		// Initialize hp
+		HP = new Stat(_hp.x, _hp.y);
 	}
 
 	public enum State { idle, moving, attac}

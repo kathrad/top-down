@@ -24,31 +24,65 @@ public class InputController : MonoBehaviour
 
 	private void Handle(Keybind kb)
 	{
-		switch (kb.mode)
+		switch (kb.primaryMode)
 		{
+			case Keybind.Mode.none:
+				return;
 			case Keybind.Mode.mouseDown:
 				if (Input.GetMouseButtonDown(kb.mouseButton))
-					kb.Invoke();
+					kb.InvokePrimary();
 				break;
 			case Keybind.Mode.mouseHeld:
 				if (Input.GetMouseButton(kb.mouseButton))
-					kb.Invoke();
+					kb.InvokePrimary();
 				break;
 			case Keybind.Mode.mouseUp:
 				if (Input.GetMouseButtonUp(kb.mouseButton))
-					kb.Invoke();
+					kb.InvokePrimary();
 				break;
 			case Keybind.Mode.keyDown:
 				if (Input.GetKeyDown(kb.key))
-					kb.Invoke();
+					kb.InvokePrimary();
 				break;
 			case Keybind.Mode.keyHeld:
 				if (Input.GetKey(kb.key))
-					kb.Invoke();
+					kb.InvokePrimary();
 				break;
 			case Keybind.Mode.keyUp:
 				if (Input.GetKeyUp(kb.key))
-					kb.Invoke();
+					kb.InvokePrimary();
+				break;
+		}
+		if (kb.secondaryMode == kb.primaryMode)
+			return;
+
+		switch (kb.secondaryMode)
+		{
+			case Keybind.Mode.none:
+				return;
+			case Keybind.Mode.mouseDown:
+				if (Input.GetMouseButtonDown(kb.mouseButton))
+					kb.InvokeSecondary();
+				break;
+			case Keybind.Mode.mouseHeld:
+				if (Input.GetMouseButton(kb.mouseButton))
+					kb.InvokeSecondary();
+				break;
+			case Keybind.Mode.mouseUp:
+				if (Input.GetMouseButtonUp(kb.mouseButton))
+					kb.InvokeSecondary();
+				break;
+			case Keybind.Mode.keyDown:
+				if (Input.GetKeyDown(kb.key))
+					kb.InvokeSecondary();
+				break;
+			case Keybind.Mode.keyHeld:
+				if (Input.GetKey(kb.key))
+					kb.InvokeSecondary();
+				break;
+			case Keybind.Mode.keyUp:
+				if (Input.GetKeyUp(kb.key))
+					kb.InvokeSecondary();
 				break;
 		}
 	}
@@ -59,11 +93,15 @@ public struct Keybind
 {
 	public int mouseButton;
 	public KeyCode key;
-	public Mode mode;
+	public Mode primaryMode;
+	public Mode secondaryMode;
 
-	public event System.EventHandler OnInvoked;
+	public event System.EventHandler OnPrimary;
+	public event System.EventHandler OnSecondary;
 
-	public void Invoke() => OnInvoked?.Invoke(this, System.EventArgs.Empty);
 
-	public enum Mode { mouseDown, mouseHeld, mouseUp, keyDown, keyHeld, keyUp }
+	public void InvokePrimary() => OnPrimary?.Invoke(this, System.EventArgs.Empty);
+	public void InvokeSecondary() => OnSecondary?.Invoke(this, System.EventArgs.Empty);
+
+	public enum Mode { none, mouseDown, mouseHeld, mouseUp, keyDown, keyHeld, keyUp }
 }

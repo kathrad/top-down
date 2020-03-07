@@ -11,12 +11,8 @@ public class CameraController : MonoBehaviour
 	public int pointerUpdateRate;
 	public LayerMask pointerLayerMask;
 
-	public bool PointingAtCharacter { get; private set; }
-	public bool PointingAtInteractable { get; private set; }
-
 	private const float POINTER_MAX_DISTANCE = 100;
 
-	public event System.Action<Character> OnPointingAtCharacter;
 	public event System.Action<Interactable> OnPointingAtInteractable;
 	public event System.EventHandler OnPointerLost;
 
@@ -31,15 +27,11 @@ public class CameraController : MonoBehaviour
 	private void Awake()
 	{
 		inst = this;
-		Pointer = new Pointer()
-		{
-			active = false,
-		};
+		Pointer = new Pointer(false);
 	}
 
 	private void Start()
 	{
-		OnPointingAtCharacter += (o) => Debug.Log("Looking at " + o.name);
 		OnPointingAtInteractable += (o) => Debug.Log("Looking at " + o.name);
 		OnPointerLost += (o, a) => Debug.Log("Pointer lost");
 	}
@@ -48,34 +40,15 @@ public class CameraController : MonoBehaviour
 	{
 		if (pointerUpdateRate == 0 || Time.frameCount % pointerUpdateRate == 0)
 		{
+			bool hadInteractable = Pointer.HasInteractable();
 			Pointer = GetPointer(pointerLayerMask);
-			var c = Pointer.GetCharacter();
-			if (c != null && c != PlayerCharacter.inst)
-			{
-				if (!PointingAtCharacter)
-					OnPointingAtCharacter?.Invoke(c);
-				PointingAtCharacter = true;
-			}
-			else
-			{
-				if (PointingAtCharacter)
-					OnPointerLost?.Invoke(this, System.EventArgs.Empty);
-				PointingAtCharacter = false;
-			}
 
-			var i = Pointer.GetInteractable();
-			if (i != null)
-			{
-				if (!PointingAtInteractable)
-					OnPointingAtInteractable?.Invoke(i);
-				PointingAtInteractable = true;
-			}
-			else
-			{
-				if (PointingAtInteractable)
-					OnPointerLost?.Invoke(this, System.EventArgs.Empty);
-				PointingAtInteractable = false;
-			}
+			Debug.Log(hadInteractable + " " + Pointer.HasInteractable());
+
+			if (hadInteractable && !Pointer.HasInteractable())
+				OnPointerLost?.Invoke(this, System.EventArgs.Empty);
+			else if (!hadInteractable && Pointer.HasInteractable())
+				OnPointingAtInteractable?.Invoke(Pointer.GetInteractable());
 		}
 	}
 
@@ -88,22 +61,18 @@ public class CameraController : MonoBehaviour
 	}
 
 	// Cast a ray from camera to mouse cursor
-	public Pointer GetPointer(LayerMask layerMask)
+	public Pointer GetPointer(LayerMask layerMask, bool getInteractable = false)
 	{
 		if (Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, POINTER_MAX_DISTANCE, layerMask))
 		{
-			return new Pointer()
-			{
-				active = true,
-				hit = hit,
-			};
+			if (getInteractable)
+				return new Pointer(true, hit, hit.transform.GetComponent<Interactable>());
+			else
+				return new Pointer(true, hit);
 		}
 		else
 		{
-			return new Pointer()
-			{
-				active = false,
-			};
+			return new Pointer(false);
 		}
 	}
 }
@@ -112,7 +81,27 @@ public struct Pointer
 {
 	public bool active;
 	public RaycastHit hit;
+	private readonly Interactable interactable;
 
-	public Character GetCharacter() => active ? hit.transform.GetComponent<Character>() : null;
-	public Interactable GetInteractable() => active ? hit.transform.GetComponent<Interactable>() : null;
+	public Pointer(bool active, RaycastHit hit, Interactable interactable)
+	{
+		this.active = active;
+		this.hit = hit;
+		this.interactable = interactable;
+	}
+
+	public Pointer(bool active, RaycastHit hit)
+	{
+		this.active = active;
+		this.hit = hit;
+		this.interactable = null;
+	}
+
+	public Pointer(bool active) : this()
+	{
+		this.active = active;
+	}
+
+	public Interactable GetInteractable() => active ? interactable : null;
+	public bool HasInteractable() => active && interactable != null;
 }

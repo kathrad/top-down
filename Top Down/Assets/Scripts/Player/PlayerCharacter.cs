@@ -30,17 +30,12 @@ public class PlayerCharacter : Character
 
 		// Input;
 		var ic = InputController.inst;
-		ic.onPoint.OnInvoked += OnPoint;
+		ic.onPoint.OnPrimary += OnPoint;
 	}
 
 	private void OnPoint(object sender, System.EventArgs e)
 	{
-		if (_controller._cameraController.PointingAtCharacter)
-		{
-			var c = _controller._cameraController.Pointer.GetCharacter();
-			Debug.Log("Pointing at " + c.name);
-		}
-		else if (_controller._cameraController.PointingAtInteractable)
+		if (_controller._cameraController.Pointer.HasInteractable())
 		{
 			var i = _controller._cameraController.Pointer.GetInteractable();
 			i.Activate();
@@ -55,83 +50,83 @@ public class PlayerCharacter : Character
 		Gizmos.DrawWireSphere(pos, attackRange);
 	}
 
-	private void Update()
-	{
-		//TODO: combat input
-		if (!Dead && false)
-		{
-			if (Input.GetMouseButtonDown(1))
-			{
-				StartAttack();
-			}
-			if (Input.GetKeyDown(KeyCode.Z))
-			{
-				_animator.SetTrigger("Sheathe");
-			}
-		}
-	}
+	//private void Update()
+	//{
+	//	//TODO: combat input
+	//	if (!Dead && false)
+	//	{
+	//		if (Input.GetMouseButtonDown(1))
+	//		{
+	//			StartAttack();
+	//		}
+	//		if (Input.GetKeyDown(KeyCode.Z))
+	//		{
+	//			_animator.SetTrigger("Sheathe");
+	//		}
+	//	}
+	//}
 
-	private void StartAttack()
-	{
-		_animator.SetTrigger("Attack");
-		_controller.StopMovement();
-		_controller.SetRotationMode(RotationMode.locked);
-	}
+	//private void StartAttack()
+	//{
+	//	_animator.SetTrigger("Attack");
+	//	_controller.StopMovement();
+	//	_controller.SetRotationMode(RotationMode.locked);
+	//}
 
-	public void FinishAttack()
-	{
-		_controller.SetRotationMode(RotationMode.direction);
-		Debug.Log("2");
-	}
+	//public void FinishAttack()
+	//{
+	//	_controller.SetRotationMode(RotationMode.direction);
+	//	Debug.Log("2");
+	//}
 
-	public void AttackPeak()
-	{
-		if (Dead)
-			return;
+	//public void AttackPeak()
+	//{
+	//	if (Dead)
+	//		return;
 
-		Debug.Log("Attacking");
+	//	Debug.Log("Attacking");
 
-		Vector3 pos = new Ray(transform.position + Vector3.up * attackOriginOffset, transform.forward).GetPoint(attackDistance);
+	//	Vector3 pos = new Ray(transform.position + Vector3.up * attackOriginOffset, transform.forward).GetPoint(attackDistance);
 
-		Collider[] colliders = Physics.OverlapSphere(pos, attackRange);
-		foreach (Collider c in colliders)
-		{
-			if (c.gameObject.Equals(gameObject))
-				continue;
+	//	Collider[] colliders = Physics.OverlapSphere(pos, attackRange);
+	//	foreach (Collider c in colliders)
+	//	{
+	//		if (c.gameObject.Equals(gameObject))
+	//			continue;
 
-			IDamageable dm = c.GetComponent<IDamageable>();
-			if (dm != null)
-				dm.Damage(attackDamage, null);
-		}
+	//		IDamageable dm = c.GetComponent<IDamageable>();
+	//		if (dm != null)
+	//			dm.Damage(attackDamage, null);
+	//	}
 		
-	}
+	//}
 
-	public void HideWeapon()
-	{
-		if (Dead)
-			return;
+	//public void HideWeapon()
+	//{
+	//	if (Dead)
+	//		return;
 
-		if (weapon != null)
-		{
-			weapon.gameObject.SetActive(false);
-		}
-	}
+	//	if (weapon != null)
+	//	{
+	//		weapon.gameObject.SetActive(false);
+	//	}
+	//}
 
-	public void ShowWeapon()
-	{
-		if (Dead)
-			return;
+	//public void ShowWeapon()
+	//{
+	//	if (Dead)
+	//		return;
 
-		if (weapon == null)
-		{
-			weapon = Instantiate(weaponTEMP, _weaponParent);
-			weapon.SetPositionAndRotation(_weaponParent.position, _weaponParent.rotation);
-		}
-		else
-		{
-			weapon.gameObject.SetActive(true);
-		}
-	}
+	//	if (weapon == null)
+	//	{
+	//		weapon = Instantiate(weaponTEMP, _weaponParent);
+	//		weapon.SetPositionAndRotation(_weaponParent.position, _weaponParent.rotation);
+	//	}
+	//	else
+	//	{
+	//		weapon.gameObject.SetActive(true);
+	//	}
+	//}
 
 	protected override void Death()
 	{

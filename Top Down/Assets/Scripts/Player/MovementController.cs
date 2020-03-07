@@ -34,8 +34,10 @@ public class MovementController : MonoBehaviour
 	private Transform pointer;
 	private Coroutine cPointer;
 	private bool pointerActive;
+	private bool releasePointer;
 
 	private Coroutine manualRot;
+	private Coroutine hidePointer;
 
 	private void Start()
 	{
@@ -47,14 +49,22 @@ public class MovementController : MonoBehaviour
 
 		// input
 		var ic = InputController.inst;
-		ic.stopMovement.OnInvoked += OnStopMovement;
-		ic.onPoint.OnInvoked += OnSetDestination;
+		ic.stopMovement.OnPrimary += OnStopMovement;
+		ic.onPoint.OnPrimary += OnSetDestination;
+		ic.onPoint.OnSecondary += OnReleasePointer;
 	}
 
 	private void OnSetDestination(object sender, System.EventArgs e)
 	{
-		if (!_cameraController.PointingAtCharacter && !_cameraController.PointingAtInteractable)
+		if (!_cameraController.Pointer.HasInteractable())
 			cPointer = StartCoroutine(ControlPointer());
+		
+	}
+
+	private void OnReleasePointer(object sender, System.EventArgs e)
+	{
+		Debug.Log("Pointer released");
+		releasePointer = true;
 	}
 
 	private void OnStopMovement(object sender, System.EventArgs e)
@@ -143,11 +153,12 @@ public class MovementController : MonoBehaviour
 
 	private IEnumerator ControlPointer()
 	{
+		// Cancel hiding the pointer
+		if (hidePointer != null)
+			StopCoroutine(hidePointer);
+
 		// Not to be confused with pointer the object
 		Pointer viewPointer = _cameraController.GetPointer(rayMask);
-
-		// Cancel hiding the pointer
-		CancelInvoke("HidePointer");
 
 		// Find initial pointer position. Reset path and return if:
 		// 1. No surface found
@@ -165,10 +176,10 @@ public class MovementController : MonoBehaviour
 			yield break;
 		}
 
-		// Hide pointer after a delay
-		Invoke("HidePointer", pointerDelay);
+		// Hide pointer after delay
+		hidePointer = StartCoroutine(HidePointerAfterDelay());
 
-		// Continuosly update destination until left mouse button is released
+		// Continuosly update destination until pointer button is released. Hide pointer object after delay
 		do
 		{
 			if (Time.frameCount % _cameraController.pointerUpdateRate == 0)
@@ -181,10 +192,17 @@ public class MovementController : MonoBehaviour
 				}
 			}
 
-			
 			yield return null;
 		}
-		while (Input.GetMouseButtonUp(0) == false);
+		while (!releasePointer);
+
+		releasePointer = false;
+	}
+
+	private IEnumerator HidePointerAfterDelay()
+	{
+		for (float t = 0; t < pointerDelay; t += Time.deltaTime) { yield return null; }
+		HidePointer();
 	}
 
 	private void HidePointer()

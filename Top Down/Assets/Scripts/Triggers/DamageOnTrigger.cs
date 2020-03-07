@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class DamageOnTrigger : MonoBehaviour
 {
+	// OnEnter
+	// OnStay - every second
+	// OnExit
 	public TriggerMode mode;
 	public int damage;
 	public DamageType damageType;
